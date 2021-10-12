@@ -1,42 +1,24 @@
-require('dotenv').config()
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
+const { Client, Intents } = require('discord.js');
+const { token } = require('./config.json');
 
-const commands = [{
-  name: 'ping',
-  description: 'Replies with Pong!'
-}]; 
+const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
-const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
-
-(async () => {
-  try {
-    console.log('Started refreshing application (/) commands.');
-
-    await rest.put(
-      Routes.applicationGuildCommands(CLIENT_ID, 784176550568394782),
-      { body: commands },
-    );
-
-    console.log('Successfully reloaded application (/) commands.');
-  } catch (error) {
-    console.error(error);
-  }
-})();
-
-const {Client, Intents } = require("discord.js");
-const client = new Client({ intents: [Intents.FLAGS.GUILDS]});
-
-client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
+client.once('ready', () => {
+	console.log('Ready!');
 });
 
 client.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) return;
+	if (!interaction.isCommand()) return;
 
-    if (interaction.commandName === 'ping') {
-        await interaction.reply('Pong!');
-    }
+	const { commandName } = interaction;
+
+	if (commandName === 'ping') {
+		await interaction.reply('Pong!');
+	} else if (commandName === 'server') {
+		await interaction.reply(`Server name: ${interaction.guild.name}\nTotal members: ${interaction.guild.memberCount}`);
+	} else if (commandName === 'user') {
+		await interaction.reply(`Your tag: ${interaction.user.tag}\nYour id: ${interaction.user.id}`);
+	}
 });
 
-client.login(process.env.TOKEN);
+client.login(token);
